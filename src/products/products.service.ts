@@ -13,7 +13,7 @@ export class ProductsService {
         prodDesc,
         prodPrice
     }) {
-        const prodId = Math.random().toString().slice(0, 5);
+        const prodId = Math.random().toString();
         const product = await Productos
             .create({ id: prodId, title: prodTitle, description: prodDesc, price: prodPrice })
             .catch(err => console.log(err));
@@ -39,9 +39,9 @@ export class ProductsService {
 
         const product = await Productos
             .update({
-                title,
-                desc,
-                price
+                title: title,
+                description: desc,
+                price: price
             }, {
                 where: {
                     id: productId
