@@ -4,7 +4,7 @@ import { ProductsService } from "./products.service";
 @Controller('products')
 export class ProductsController {
     constructor(private readonly productsService: ProductsService) {
-
+        this.productsService.dbInit().catch(err => console.error(err));
     }
 
     @Post()
@@ -13,10 +13,11 @@ export class ProductsController {
         @Body('description') prodDesc: string,
         @Body('price') prodPrice: number
     ): any {
-        const generatedId = this.productsService.insertProduct(
+        const generatedId = this.productsService.insertProduct({
             prodTitle,
             prodDesc,
             prodPrice
+        }
         );
         return { id: generatedId }
     }
