@@ -1,27 +1,30 @@
 import { Injectable } from "@nestjs/common";
+import Users from "src/users/Users.model";
 import Productos from '../products/products.model'
 
 @Injectable()
 export class ProductsService {
 
     async dbInit() {
-        Productos.sync().catch(err => console.error(err));
+        Productos.sync({ alter: true }).catch(err => console.error(err));
+
     }
 
     async insertProduct({
         prodTitle,
         prodDesc,
-        prodPrice
+        prodPrice,
+        userId
     }) {
         const prodId = Math.random().toString();
         const product = await Productos
-            .create({ id: prodId, title: prodTitle, description: prodDesc, price: prodPrice })
+            .create({ id: prodId, title: prodTitle, description: prodDesc, price: prodPrice, userId: userId })
             .catch(err => console.log(err));
         return product;
     }
 
     async getProducts() {
-        return Productos.findAll();
+        return Productos.findAll({ include: Users });
     }
 
     async getSingleProduct(productId: string) {
@@ -35,13 +38,14 @@ export class ProductsService {
         return product;
     }
 
-    async updateProduct(productId: string, title: string, desc: string, price: number) {
+    async updateProduct(productId: string, title: string, desc: string, price: number, usrId: string) {
 
         const product = await Productos
             .update({
                 title: title,
                 description: desc,
-                price: price
+                price: price,
+                userId: usrId
             }, {
                 where: {
                     id: productId

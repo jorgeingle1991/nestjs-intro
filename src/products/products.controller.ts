@@ -11,12 +11,14 @@ export class ProductsController {
     addProduct(
         @Body('title') prodTitle: string,
         @Body('description') prodDesc: string,
-        @Body('price') prodPrice: number
+        @Body('price') prodPrice: number,
+        @Body('userId') userId: string
     ): any {
         const generatedId = this.productsService.insertProduct({
             prodTitle,
             prodDesc,
-            prodPrice
+            prodPrice,
+            userId
         }
         );
         return { id: generatedId }
@@ -37,9 +39,10 @@ export class ProductsController {
         @Param('id') prodId: string,
         @Body('title') prodTitle: string,
         @Body('description') prodDescription: string,
-        @Body('price') prodPrice: number
+        @Body('price') prodPrice: number,
+        @Body('userId') userId: string
     ) {
-        this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice);
+        this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice, userId);
         return { "msg": "Updated record!" };
     }
 

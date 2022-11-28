@@ -1,5 +1,7 @@
 import { DataTypes, Model } from 'sequelize'
-import sequelizeConnection from '../sequalize/config'
+import sequelizeConnection from '../sequelize/config'
+import Users from '../users/Users.model'
+
 class Productos extends Model {
     declare id: string;
     declare title: string;
@@ -27,5 +29,12 @@ Productos.init({
     paranoid: false,
     modelName: "productos"
 });
+
+Users.hasOne(Productos, {
+    foreignKey: {
+        name: 'userId'
+    }
+})
+Productos.belongsTo(Users);
 
 export default Productos;
