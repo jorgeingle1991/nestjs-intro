@@ -24,7 +24,14 @@ export class ProductsService {
     }
 
     async getProducts() {
-        return Productos.findAll({ include: Users });
+        return Productos.findAll(
+            {
+                attributes: ['id', 'title', 'description', 'price'],
+                include: [{
+                    model: Users,
+                    attributes: ['name']
+                }]
+            });
     }
 
     async getSingleProduct(productId: string) {

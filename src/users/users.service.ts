@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import Productos from "src/products/products.model";
 import Users from '../users/users.model'
 
 @Injectable()
@@ -20,7 +21,11 @@ export class UsersService {
     }
 
     async getUser() {
-        return Users.findAll();
+        return Users.findAll({
+            include: [{
+                model: Productos
+            }]
+        });
     }
 
     async getSingleUser(usrId: string) {

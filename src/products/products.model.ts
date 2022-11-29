@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelizeConnection from '../sequelize/config'
-import Users from '../users/Users.model'
+import Users from '../users/users.model'
 
 class Productos extends Model {
     declare id: string;
@@ -23,6 +23,7 @@ Productos.init({
     price: {
         type: DataTypes.INTEGER
     }
+
 }, {
     timestamps: false,
     sequelize: sequelizeConnection,
@@ -30,11 +31,8 @@ Productos.init({
     modelName: "productos"
 });
 
-Users.hasOne(Productos, {
-    foreignKey: {
-        name: 'userId'
-    }
-})
 Productos.belongsTo(Users);
+
+Users.hasMany(Productos)
 
 export default Productos;
