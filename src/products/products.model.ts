@@ -1,8 +1,38 @@
-import { TimeInterval } from "rxjs/internal/operators/timeInterval";
+import { DataTypes, Model } from 'sequelize'
+import sequelizeConnection from '../sequelize/config'
+import Users from '../users/users.model'
 
-export class Product {
-    constructor(public id:string,public title:string,public description:string,public price:number) {
-        
+class Productos extends Model {
+    declare id: string;
+    declare title: string;
+    declare description: string;
+    declare price: number;
+};
 
-    };
-}
+Productos.init({
+    id: {
+        type: DataTypes.STRING,
+        primaryKey: true
+    },
+    title: {
+        type: DataTypes.STRING
+    },
+    description: {
+        type: DataTypes.STRING
+    },
+    price: {
+        type: DataTypes.INTEGER
+    }
+
+}, {
+    timestamps: false,
+    sequelize: sequelizeConnection,
+    paranoid: false,
+    modelName: "productos"
+});
+
+Productos.belongsTo(Users);
+
+Users.hasMany(Productos)
+
+export default Productos;

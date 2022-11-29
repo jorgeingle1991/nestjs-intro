@@ -4,19 +4,22 @@ import { ProductsService } from "./products.service";
 @Controller('products')
 export class ProductsController {
     constructor(private readonly productsService: ProductsService) {
-
+        this.productsService.dbInit().catch(err => console.error(err));
     }
 
     @Post()
     addProduct(
         @Body('title') prodTitle: string,
         @Body('description') prodDesc: string,
-        @Body('price') prodPrice: number
+        @Body('price') prodPrice: number,
+        @Body('userId') userId: string
     ): any {
-        const generatedId = this.productsService.insertProduct(
+        const generatedId = this.productsService.insertProduct({
             prodTitle,
             prodDesc,
-            prodPrice
+            prodPrice,
+            userId
+        }
         );
         return { id: generatedId }
     }
@@ -36,9 +39,10 @@ export class ProductsController {
         @Param('id') prodId: string,
         @Body('title') prodTitle: string,
         @Body('description') prodDescription: string,
-        @Body('price') prodPrice: number
+        @Body('price') prodPrice: number,
+        @Body('userId') userId: string
     ) {
-        this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice);
+        this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice, userId);
         return { "msg": "Updated record!" };
     }
 
