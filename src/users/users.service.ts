@@ -11,13 +11,29 @@ export class UsersService {
 
     async insertUser({
         usrName,
-
+        usrEmail,
+        prodTitle,
+        prodDesc,
+        prodPrice
     }) {
         const usrId = Math.random().toString();
+        const prodId = Math.random().toString();
         const user = await Users
-            .create({ id: usrId, name: usrName })
+            .create({
+                id: usrId,
+                name: usrName,
+                email: usrEmail,
+                productos: {
+                    id: prodId,
+                    title: prodTitle,
+                    description: prodDesc,
+                    price: prodPrice
+                }
+            }, {
+                include: [{ model: Productos, required: false }]
+            })
             .catch(err => console.log(err));
-        return usrId;
+        return user;
     }
 
     async getUser() {
@@ -64,4 +80,8 @@ export class UsersService {
         return user;
     }
 
+    //Helper
+    // function createUser(shortVersion:boolean=false){
+    //    return 0
+    // }
 }

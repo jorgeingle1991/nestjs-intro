@@ -9,12 +9,21 @@ export class UsersController {
 
     @Post()
     addUser(
-        @Body('name') usrName: string,
+        @Body('usrName') usrName: string,
+        @Body('usrEmail') usrEmail: string,
+        @Body('prodTitle') prodTitle: string,
+        @Body('prodDescription') prodDescription: string,
+        @Body('prodPrice') prodPrice: number,
+
     ): any {
         const generatedId = this.usersService.insertUser({
-            usrName: usrName
-        }
-        );
+            usrName: usrName,
+            usrEmail: usrEmail,
+            prodTitle: prodTitle,
+            prodDesc: prodDescription,
+            prodPrice: prodPrice
+
+        });
         return { id: generatedId }
     }
 
