@@ -6,7 +6,7 @@ import Users from '../users/users.model'
 export class UsersService {
 
     async dbInit() {
-        Users.sync({ alter: true }).catch(err => console.error(err));
+        Users.sync().catch(err => console.error(err));
     }
 
     async insertUser({

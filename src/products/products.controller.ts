@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, Patch, Delete, HttpStatus, Res } from "@nestjs/common";
+import Productos from "./products.model";
 import { ProductsService } from "./products.service";
 
 @Controller('products')
@@ -8,47 +9,57 @@ export class ProductsController {
     }
 
     @Post()
-    addProduct(
+    async addProduct(
         @Body('title') prodTitle: string,
         @Body('description') prodDesc: string,
         @Body('price') prodPrice: number,
         @Body('userId') userId: string
-    ): any {
-        const generatedId = this.productsService.insertProduct({
+    ): Promise<any> {
+        const insertedProduct = await this.productsService.insertProduct({
             prodTitle,
             prodDesc,
             prodPrice,
             userId
         }
         );
-        return { id: generatedId }
+        return insertedProduct;
+
     }
 
     @Get()
-    getAllProducts() {
-        return this.productsService.getProducts();
+    async getAllProducts() {
+        return await this.productsService.getProducts();
     }
 
     @Get(':id')
-    getProduct(@Param('id') productId: string) {
-        return this.productsService.getSingleProduct(productId);
+    async getProduct(@Res() response, @Param('id') productId: string) {
+
+        const product = await this.productsService.getSingleProduct(productId).then((res) => { return res });
+
+        var STATUS = product.status;
+        var MESSAGE = product.payload;
+
+        return response.status(STATUS).send(MESSAGE);
+
+
     }
 
     @Patch(':id')
-    updateProduct(
+    async updateProduct(
         @Param('id') prodId: string,
         @Body('title') prodTitle: string,
         @Body('description') prodDescription: string,
         @Body('price') prodPrice: number,
         @Body('userId') userId: string
     ) {
-        this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice, userId);
-        return { "msg": "Updated record!" };
+        const updatedProduct = await this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice, userId);
+
+        return updatedProduct;
     }
 
     @Delete(':id')
-    removeProduct(@Param('id') productId: string) {
-        this.productsService.deleteProduct(productId);
+    async removeProduct(@Param('id') productId: string) {
+        const deletedProduct = await this.productsService.deleteProduct(productId);
         return { "msg": "Deleted record!" };
     }
 }

@@ -1,4 +1,6 @@
 import { Controller, Post, Body, Get, Param, Patch, Delete } from "@nestjs/common";
+import Productos from "src/products/products.model";
+import Users from "./Users.model";
 import { UsersService } from "./users.service";
 
 @Controller('users')
@@ -8,15 +10,15 @@ export class UsersController {
     }
 
     @Post()
-    addUser(
+    async addUser(
         @Body('usrName') usrName: string,
         @Body('usrEmail') usrEmail: string,
         @Body('prodTitle') prodTitle: string,
         @Body('prodDescription') prodDescription: string,
         @Body('prodPrice') prodPrice: number,
 
-    ): any {
-        const generatedId = this.usersService.insertUser({
+    ): Promise<any> {
+        const createUser = await this.usersService.insertUser({
             usrName: usrName,
             usrEmail: usrEmail,
             prodTitle: prodTitle,
@@ -24,21 +26,35 @@ export class UsersController {
             prodPrice: prodPrice
 
         });
-        return { id: generatedId }
+        const userInformation = createUser['dataValues'];
+        console.log(userInformation['id'])
+        const displayUser = await Users
+            .findAll({
+                where: {
+                    id: userInformation['id']
+                },
+                include: [{
+                    model: Productos,
+                    attributes: ['id', 'title', 'description', 'price']
+                }]
+            })
+            .catch(err => console.log(err));
+        console.log(displayUser);
+        return displayUser
     }
 
     @Get()
-    getAllProducts() {
+    async getAllProducts() {
         return this.usersService.getUser();
     }
 
     @Get(':id')
-    getProduct(@Param('id') usrId: string) {
+    async getProduct(@Param('id') usrId: string) {
         return this.usersService.getSingleUser(usrId);
     }
 
     @Patch(':id')
-    updateUser(
+    async updateUser(
         @Param('id') usrId: string,
         @Body('name') usrName: string
     ) {
@@ -47,7 +63,7 @@ export class UsersController {
     }
 
     @Delete(':id')
-    removeUser(@Param('id') usrId: string) {
+    async removeUser(@Param('id') usrId: string) {
         this.usersService.deleteUser(usrId);
         return { "msg": "Deleted record!" };
     }
