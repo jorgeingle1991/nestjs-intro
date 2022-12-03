@@ -1,13 +1,11 @@
 import { Controller, Post, Body, Get, Param, Patch, Delete } from "@nestjs/common";
-import Productos from "src/products/products.model";
-import Users from "./Users.model";
+import { Productos } from "src/products/products.entity";
+import { Users } from "./users.entity";
 import { UsersService } from "./users.service";
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {
-        this.usersService.dbInit().catch(err => console.error(err));
-    }
+    constructor(private readonly usersService: UsersService) { }
 
     @Post()
     async addUser(

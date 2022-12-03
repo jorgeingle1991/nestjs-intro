@@ -1,13 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import Productos from "src/products/products.model";
-import Users from '../users/users.model'
+import { Inject, Injectable } from "@nestjs/common";
+import { Productos } from "src/products/products.entity";
+import { Users } from './users.entity'
 
 @Injectable()
 export class UsersService {
 
-    async dbInit() {
-        Users.sync().catch(err => console.error(err));
-    }
+    constructor(
+        @Inject('USERS_REPOSITORY')
+        private usersRepository: typeof Users
+    ) { }
+
 
     async insertUser({
         usrName,
