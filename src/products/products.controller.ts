@@ -9,6 +9,7 @@ export class ProductsController {
     constructor(private productsService: ProductsService) { }
 
     @Post()
+    @UseFilters(new HttpExceptionFilter())
     async addProduct(
         @Body('title') prodTitle: string,
         @Body('description') prodDesc: string,
@@ -25,11 +26,13 @@ export class ProductsController {
             userId
         })
             .then(() => {
-                if (existingProductWithSameUserId == null) {
-                    //            throw new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
+                if (existingProductWithSameUserId !== null) {
+                    throw new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
                 }
             })
-            .catch(/***error => new HttpException(error.message, error.status,)***/);
+            .catch((error) => {
+                throw new HttpException(error.message, error.status)
+            });
 
         return insertedProduct;
 
@@ -58,6 +61,7 @@ export class ProductsController {
     }
 
     @Patch(':id')
+    @UseFilters(new HttpExceptionFilter())
     async updateProduct(
         @Param('id') prodId: string,
         @Body('title') prodTitle: string,
@@ -65,18 +69,33 @@ export class ProductsController {
         @Body('price') prodPrice: number,
         @Body('userId') userId: string
     ) {
-        const updatedProduct = await this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice, userId);
+        await Productos.findOne({ where: { userId: userId } })
+            .then((result) => {
+                if (result !== null) {
+                    throw new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
+                }
+            });
+
+        const updatedProduct = await this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice, userId)
+            .catch((error) => {
+                throw new HttpException(error.message, error.status)
+            });
 
         return updatedProduct;
     }
 
     @Delete(':id')
+    @UseFilters(new HttpExceptionFilter())
     async removeProduct(@Param('id') productId: string) {
-        const deletedProduct = await this.productsService.deleteProduct(productId);
+
+        await Productos.findOne({ where: { id: productId } })
+            .then((result) => {
+                if (result == null) {
+                    throw new HttpException('The record does not exists', HttpStatus.BAD_REQUEST);
+                }
+            });
+        await this.productsService.deleteProduct(productId);
         return { "msg": "Deleted record!" };
     }
 }
 
-function UserFilters() {
-    throw new Error("Function not implemented.");
-}

@@ -37,7 +37,6 @@ export class UsersController {
                 }]
             })
             .catch(err => console.log(err));
-        console.log(displayUser);
         return displayUser
     }
 

@@ -20,22 +20,38 @@ export class UsersService {
     }) {
         const usrId = Math.random().toString();
         const prodId = Math.random().toString();
-        const user = await Users
-            .create({
-                id: usrId,
-                name: usrName,
-                email: usrEmail,
-                producto: {
-                    id: prodId,
-                    title: prodTitle,
-                    description: prodDesc,
-                    price: prodPrice
-                }
-            }, {
-                include: [{ model: Productos, required: false }]
-            })
-            .catch(err => console.log(err));
-        return user;
+
+        const isProductCreated = (prodTitle !== undefined) &&
+            (prodDesc !== undefined) &&
+            (prodPrice !== undefined);
+        if (isProductCreated) {
+            const user = await Users
+                .create({
+                    id: usrId,
+                    name: usrName,
+                    email: usrEmail,
+                    producto: {
+                        id: prodId,
+                        title: prodTitle,
+                        description: prodDesc,
+                        price: prodPrice
+                    }
+                }, {
+                    include: [{ model: Productos, required: false }]
+                })
+                .catch(err => console.log(err));
+            return user;
+        }
+        else {
+            const user = await Users
+                .create({
+                    id: usrId,
+                    name: usrName,
+                    email: usrEmail,
+
+                });
+            return user;
+        }
     }
 
     async getUser() {
@@ -82,8 +98,4 @@ export class UsersService {
         return user;
     }
 
-    //Helper
-    // function createUser(shortVersion:boolean=false){
-    //    return 0
-    // }
 }
