@@ -17,5 +17,5 @@ export class Users extends Model {
     email: string;
 
     @HasOne(() => Productos)
-    producto: Productos[]
+    producto: Productos
 };

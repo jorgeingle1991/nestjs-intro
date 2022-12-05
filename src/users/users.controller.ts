@@ -25,7 +25,6 @@ export class UsersController {
 
         });
         const userInformation = createUser['dataValues'];
-        console.log(userInformation['id'])
         const displayUser = await Users
             .findAll({
                 where: {
@@ -33,7 +32,8 @@ export class UsersController {
                 },
                 include: [{
                     model: Productos,
-                    attributes: ['id', 'title', 'description', 'price']
+                    attributes: ['id', 'title', 'description', 'price'],
+                    required: false
                 }]
             })
             .catch(err => console.log(err));

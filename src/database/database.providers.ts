@@ -17,7 +17,7 @@ export const databaseProviders = [
                 database: 'Test'
             });
             sequelizeConnection.addModels([Users, Productos]);
-            await sequelizeConnection.sync();
+            await sequelizeConnection.sync({ alter: true });
             return sequelizeConnection;
         },
     },

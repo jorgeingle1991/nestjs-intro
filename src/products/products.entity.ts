@@ -12,13 +12,13 @@ export class Productos extends Model {
     id: string;
 
     @Column
-    name: string;
+    title: string;
 
     @Column
-    age: number;
+    description: string;
 
     @Column
-    email: string;
+    price: number;
 
     @ForeignKey(() => Users)
     @Column
@@ -28,6 +28,4 @@ export class Productos extends Model {
     user: Users
 };
 
-
-// Users.hasMany(Productos)
 

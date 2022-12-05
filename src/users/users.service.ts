@@ -25,7 +25,7 @@ export class UsersService {
                 id: usrId,
                 name: usrName,
                 email: usrEmail,
-                productos: {
+                producto: {
                     id: prodId,
                     title: prodTitle,
                     description: prodDesc,
