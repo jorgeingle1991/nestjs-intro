@@ -23,7 +23,7 @@ export class ProductsService {
             .create({ id: prodId, title: prodTitle, description: prodDesc, price: prodPrice, userId: userId })
             .catch(exception => {
                 if (exception.name === "SequelizeForeignKeyConstraintError") {
-                    throw new HttpException('The product attempted to be assigned to a user that does not exist', HttpStatus.BAD_REQUEST)
+                    return new HttpException('The product attempted to be assigned to a user that does not exist', HttpStatus.BAD_REQUEST)
                 }
             })
         return product;
@@ -55,7 +55,7 @@ export class ProductsService {
 
     async updateProduct(productId: string, title: string, desc: string, price: number, usrId: string) {
 
-        const updatedProduct = await Productos
+        await Productos
             .update({
                 title: title,
                 description: desc,
@@ -68,7 +68,7 @@ export class ProductsService {
             })
             .catch(exception => {
                 if (exception.name === "SequelizeForeignKeyConstraintError") {
-                    throw new HttpException('The product was attempted to be assigned to the user that does not exist', HttpStatus.BAD_REQUEST)
+                    return new HttpException('The product was attempted to be assigned to the user that does not exist', HttpStatus.BAD_REQUEST)
                 }
             })
 
@@ -93,7 +93,6 @@ export class ProductsService {
                     id: prodId
                 }
             })
-            .catch(err => console.log(err));
         return product;
     }
 

@@ -25,10 +25,14 @@ export class ProductsController {
             prodPrice,
             userId
         })
-            .then(() => {
+            .then((result) => {
                 if (existingProductWithSameUserId !== null) {
                     throw new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
                 }
+                if (result instanceof HttpException) {
+                    throw result
+                }
+                return result
             })
             .catch((error) => {
                 throw new HttpException(error.message, error.status)
@@ -69,17 +73,25 @@ export class ProductsController {
         @Body('price') prodPrice: number,
         @Body('userId') userId: string
     ) {
-        await Productos.findOne({ where: { userId: userId } })
-            .then((result) => {
-                if (result !== null) {
-                    throw new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
-                }
-            });
+
 
         const updatedProduct = await this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice, userId)
+            .then((updatedProductResult) => {
+
+                Productos.findOne({ where: { userId: userId } })
+                    .then((productAssignedToUserResult) => {
+                        if (productAssignedToUserResult !== null) {
+                            return new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
+                        }
+                    });
+
+                return updatedProductResult;
+
+            })
             .catch((error) => {
-                throw new HttpException(error.message, error.status)
+                return new HttpException(error.message, error.status)
             });
+
 
         return updatedProduct;
     }
@@ -94,6 +106,7 @@ export class ProductsController {
                     throw new HttpException('The record does not exists', HttpStatus.BAD_REQUEST);
                 }
             });
+
         await this.productsService.deleteProduct(productId);
         return { "msg": "Deleted record!" };
     }

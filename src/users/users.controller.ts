@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseFilters, HttpException } from "@nestjs/common";
+import { HttpExceptionFilter } from "src/products/exceptions/http-exception.filter";
 import { Productos } from "src/products/products.entity";
 import { Users } from "./users.entity";
 import { UsersService } from "./users.service";
@@ -8,6 +9,7 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
     @Post()
+    @UseFilters(new HttpExceptionFilter())
     async addUser(
         @Body('usrName') usrName: string,
         @Body('usrEmail') usrEmail: string,
