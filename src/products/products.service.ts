@@ -1,4 +1,6 @@
-import { Injectable, Inject, HttpException, HttpStatus, NotFoundException } from "@nestjs/common";
+import { Injectable, Inject, HttpException, HttpStatus, NotFoundException, Res } from "@nestjs/common";
+import { rejects } from "assert";
+import { resolve } from "path";
 import { Sequelize, UniqueConstraintError } from "sequelize";
 import { Users } from "src/users/users.entity";
 import { Productos } from './products.entity'
@@ -19,11 +21,25 @@ export class ProductsService {
         userId
     }) {
         const prodId = Math.random().toString();
+
+        await Productos.
+            findOne({ where: { userId: userId } }).
+            then(
+                (productResult) => {
+                    debugger;
+                    if (productResult !== null) {
+                        throw new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
+                    }
+                });
+
         const product = await Productos
             .create({ id: prodId, title: prodTitle, description: prodDesc, price: prodPrice, userId: userId })
+            .then(() => {
+
+            })
             .catch(exception => {
                 if (exception.name === "SequelizeForeignKeyConstraintError") {
-                    return new HttpException('The product attempted to be assigned to a user that does not exist', HttpStatus.BAD_REQUEST)
+                    throw new HttpException('The product attempted to be assigned to a user that does not exist', HttpStatus.BAD_REQUEST)
                 }
             })
         return product;
@@ -55,33 +71,59 @@ export class ProductsService {
 
     async updateProduct(productId: string, title: string, desc: string, price: number, usrId: string) {
 
-        await Productos
-            .update({
-                title: title,
-                description: desc,
-                price: price,
-                userId: usrId
-            }, {
-                where: {
-                    id: productId
-                }
-            })
-            .catch(exception => {
-                if (exception.name === "SequelizeForeignKeyConstraintError") {
-                    return new HttpException('The product was attempted to be assigned to the user that does not exist', HttpStatus.BAD_REQUEST)
-                }
-            })
+        if (usrId !== undefined) {
+            await Productos.findOne({ where: { userId: usrId } })
+                .then((productAssignedToUserResult) => {
+                    debugger;
+                    if (productAssignedToUserResult !== null) {
+                        throw new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
+                    }
+                })
 
-        const alreadyUpdatedProduct = Productos.findOne({
-            where: {
-                id: productId
-            },
-            include: [{
-                model: Users
-            }]
-        });
+            const product = await Productos
+                .update({
+                    title: title,
+                    description: desc,
+                    price: price,
+                    userId: usrId
+                }, {
+                    where: {
+                        id: productId
+                    },
+                    returning: true
+                }).then(res => {
+                    return res['1'][0].dataValues
+                })
+                .catch(exception => {
+                    if (exception.name === "SequelizeForeignKeyConstraintError") {
+                        throw new HttpException('The product was attempted to be assigned to the user that does not exist', HttpStatus.BAD_REQUEST)
+                    }
+                })
+            return product;
+        }
+        else {
+            const product = await Productos
+                .update({
+                    title: title,
+                    description: desc,
+                    price: price,
+                }, {
+                    where: {
+                        id: productId
+                    },
+                    returning: true
+                }).then(res => {
+                    return res['1'][0].dataValues
+                })
+                .catch(exception => {
+                    if (exception.name === "SequelizeForeignKeyConstraintError") {
+                        throw new HttpException('The product was attempted to be assigned to the user that does not exist', HttpStatus.BAD_REQUEST)
+                    }
+                })
+            return product;
+        }
 
-        return alreadyUpdatedProduct;
+
 
     }
 

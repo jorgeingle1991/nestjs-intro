@@ -2,6 +2,8 @@ import { Controller, Post, Body, Get, Param, Patch, Delete, Res, HttpException, 
 import { ProductsService } from "./products.service";
 import { HttpExceptionFilter } from "./exceptions/http-exception.filter";
 import { Productos } from "./products.entity";
+import { rejects } from "assert";
+import { resourceLimits } from "worker_threads";
 
 @Controller('products')
 export class ProductsController {
@@ -17,26 +19,14 @@ export class ProductsController {
         @Body('userId') userId: string
     ): Promise<any> {
 
-        const existingProductWithSameUserId = await Productos.findOne({ where: { userId: userId } });
-
         const insertedProduct = await this.productsService.insertProduct({
             prodTitle,
             prodDesc,
             prodPrice,
             userId
-        })
-            .then((result) => {
-                if (existingProductWithSameUserId !== null) {
-                    throw new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
-                }
-                if (result instanceof HttpException) {
-                    throw result
-                }
-                return result
-            })
-            .catch((error) => {
-                throw new HttpException(error.message, error.status)
-            });
+        }).catch((error) => {
+            throw new HttpException(error.message, error.status)
+        });
 
         return insertedProduct;
 
@@ -76,20 +66,8 @@ export class ProductsController {
 
 
         const updatedProduct = await this.productsService.updateProduct(prodId, prodTitle, prodDescription, prodPrice, userId)
-            .then((updatedProductResult) => {
-
-                Productos.findOne({ where: { userId: userId } })
-                    .then((productAssignedToUserResult) => {
-                        if (productAssignedToUserResult !== null) {
-                            return new HttpException('A product already is assigned to a user ', HttpStatus.BAD_REQUEST);
-                        }
-                    });
-
-                return updatedProductResult;
-
-            })
             .catch((error) => {
-                return new HttpException(error.message, error.status)
+                throw new HttpException(error.message, error.status)
             });
 
 
