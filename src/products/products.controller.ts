@@ -50,6 +50,7 @@ export class ProductsController {
                 }
             })
             .catch(() => {
+                debugger;
                 throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
             })
     }
